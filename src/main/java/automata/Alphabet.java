@@ -1,40 +1,51 @@
 package automata;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-/*
+
+/**
  * Esta classe tipifica como deve ser um alfabeto qualquer,
  * ela ira armazenar symbolos (Strings) em uma lista.
- * Ela é composta por dois métodos construtores
- * alfabetos não são modificáveis, gere outro se preciso
+ * Ela não é modificável, gere outro se preciso
+ * @author milnner
  */
-
 public class Alphabet {
-    private List<String> symbols;
-    public Alphabet(String[] symbols) {
-        this.symbols = new ArrayList<String>(symbols.length);
-        insertArrayAsAlphabet(symbols);
+    private final List<String> symbols;
 
+    /**
+     * @param symbols array com os símbolos
+     */
+    public Alphabet(String[] symbols) {
+        this.symbols = new ArrayList<>(symbols.length);
+        insertArrayAsAlphabet(symbols);
     }
+
+    /**
+     * @param symbols string com os símbolos separados por vírgula
+     */
     public Alphabet(String symbols) {
         String[] s = symbols.split(",");
-        this.symbols = new ArrayList<String>(s.length);
+        this.symbols = new ArrayList<>(s.length);
         insertArrayAsAlphabet(s);
     }
+
+    /**
+     * Insere um Array de símbolos no alfabeto
+     * @param symbols é  Array com os simbolos
+     */
     private void insertArrayAsAlphabet(String[] symbols) {
         this.symbols.clear();
         for (String value : symbols) {
-            try {
-                this.addSymbolIntoSymbols(value);
-            } catch (NewSymbolContainedInSymbols e) {
-                System.err.println(e.getMessage() + " --> This symbol " + value + ", it's already in alphabet.");
-            }
+            this.addSymbolIntoSymbols(value);
         }
     }
-    public List<String> getSymbols() {
-        return this.symbols;
-    }
+
+    /**
+     * Verifica se um símbolo está contido no alfabeto,
+     * isto com um algoritmo de busca binária.
+     * @param symbol é o símbolo para comparação
+     * @return retorna true para contido e false para não contido
+     */
     public boolean contains(String symbol) {
         // binarySort
         int left = 0;
@@ -50,29 +61,45 @@ public class Alphabet {
         }
         return false;
     }
-    // Insere em ordem crescente,
-    // caso contrario a classe não irá funcionar adequadamente,
-    // isto pela necessidade de ordem para o método contains
-    private void addSymbolIntoSymbols(String symbol) throws NewSymbolContainedInSymbols {
+
+    /**
+     * Adiciona um símbolo sempre mantendo a ordem crescente do alfabeto,
+     * isto é importante para o algoritmo que verificará se um símbolo está contido no alfabeto.
+     * @param symbol um símbolo que irá ser adicionado no alfabeto,
+     *               ao final da execução o alfabeto estará ordenado.
+     */
+    private void addSymbolIntoSymbols(String symbol) {
         String other = null;
         for (int i = 0; i < this.symbols.size(); i++) {
-            // (a = this.symbols.get(i)) e (b = symbol) então se (a < b retorna -1) ou se (a > b retorna 1) senão (retorna 0)
             int c = this.symbols.get(i).compareTo(symbol);
             if (c > 0) {
                 other = this.symbols.get(i);
                 this.symbols.set(i,symbol);
                 symbol = other;
-            } else if  (c == 0){
-                throw new NewSymbolContainedInSymbols();
-
-            }
+            } if (c == 0)return;// c == 0 ignora, deve ser tratado em um verificador do arquivo
         }
         this.symbols.add(symbol);
     }
-    static private class NewSymbolContainedInSymbols extends Exception {
-        @Override
-        public String getMessage() {
-            return "Attempted insert new symbol into symbols, but it has happened before";
-        }
-    };
+
+    /**
+     * @return retorna uma <b></b>
+     * @deprecated usada somente para realizar testes
+     */
+    @Deprecated
+    public List<String> copySymbols() {
+        List<String> symbols = new ArrayList<>(this.symbols.size());
+        symbols.addAll(this.symbols);
+        return symbols;
+    }
+
+    /**
+     *
+     * @return um objeto <B>String</B> mostrando o conteúdo do objeto <b>Automata</b>
+     */
+    @Override
+    public String toString() {
+        return "Alphabet{" +
+                "symbols=" + symbols +
+                '}';
+    }
 }
