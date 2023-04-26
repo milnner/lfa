@@ -1,7 +1,9 @@
-package automata;
+package xyz.milnner.automata;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.lang.Math;
 
 /**
  * Esta classe tipifica como deve ser um alfabeto qualquer,
@@ -25,6 +27,7 @@ public class Alphabet {
      */
     public Alphabet(String symbols) {
         String[] s = symbols.split(",");
+        Arrays.sort(s);
         this.symbols = new ArrayList<>(s.length);
         insertArrayAsAlphabet(s);
     }
@@ -101,5 +104,47 @@ public class Alphabet {
         return "Alphabet{" +
                 "symbols=" + symbols +
                 '}';
+    }
+
+    public List<String> getSymbols() {
+        return symbols;
+    }
+
+    /**
+     * Este método realiza a permutação dos símbolos do alfabeto
+     * retornando uma palavra ao receber um índice.
+     * e. g. para um alfabeto ordenado sigma = {a, b},
+     * getWordFromSetOfPermutations(1) = a, getWordFromSetOfPermutations(2) = b,
+     * getWordFromSetOfPermutations(3) = aa, getWordFromSetOfPermutations(4) = bb,
+     * getWordFromSetOfPermutations(5) = ab, getWordFromSetOfPermutations(6) = ba.
+     * Este comportamento se repete. Uma particularidade deste método é o cáculo do
+     * tamanho do array para armazenar a palavra. Para evitar desperdicio de processamento
+     * na realocação de memória, aproveita-se o comportamento de crescimento  da permutação
+     * das palavras (progressão geométrica). Através do indice da palavra é possível calcular
+     * a quantidade necessária de memória, para isso, a formúla conhecida de somatória de uma progressão
+     * geométrica, isto é, <b>Sn = ( a1 * ( (q^n) - 1) ) / ( q - 1 )</b>, onde <b>a1</b> é o primeiro termo desta soma,
+     * <b>q</b> é a razão, <b>n</b> o enésimo exponte, para um <b>q = a1</b>, e <b>Sn</b> a somatória de todos os elementos
+     * da progressão geométrica orientada pelos termos anteriores, se, e somente se, <b>( ( Sn * ( q - 1 ) / a1) + 1 ) = q^n</b>.
+     * Está proposição é útil, visto que para um alfabeto qualquer sigma2, existe a quantidade de permutações para
+     * <b>n</b> símbolos deste alfabeto, dada por <b>|sigma2|^n</b>. Sendo verdade <b>( ( Sn * ( q - 1 ) / a1) + 1 ) = q^n</b>
+     * e <b>( Sn * ( q - 1 ) / a1) + 1 ) = u</b>, tem-se <b>q^n = u</b>, uma defição dos logarítmos, para <b>loga(b) = x < = > a^x = b</b>
+     * então é verdade que <b>logq() = n</b>. Com isto, dado um  <b>Sn</b>, <b> n-1 < logq(( ( Sn * ( q - 1 ) / a1) + 1 )) <= n </b>,
+     * portanto, o tamanho <b>n</b> de uma palavra que esteja no índice <b>Sn</b>, do conjunto de permutações infinitas, dos símbolos de um
+     * alfabeto 𝛴 é dado por ⎡log|𝛴|((Sn * ( |𝛴| - 1 ) / |𝛴|) + 1)⎤ = n. obs. |𝛴| é a base do logarítmo.
+     * @param i
+     */
+    public String[] getWordFromSetOfPermutations(int i) {
+        final int q = this.symbols.size();
+        final int a1 = q;
+        final int u = (((q-1)*i)/a1) + 1;
+        final int n = (int) Math.ceil(Math.log10(u) / Math.log10(q));
+        String[] word = new String[n];
+        int x = i - 1;
+        for (int z = 0; z < n; z++) {
+            int j = x % q;
+            word[n - z - 1] = this.symbols.get(j);
+            x = (x-j)/q;
+        }
+        return word;
     }
 }

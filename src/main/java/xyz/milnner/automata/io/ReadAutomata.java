@@ -1,9 +1,9 @@
-package automata.io;
+package xyz.milnner.automata.io;
 
-import automata.Alphabet;
-import automata.Automata;
-import automata.StateAutomata;
-import automata.Trasition;
+import xyz.milnner.automata.Alphabet;
+import xyz.milnner.automata.Automata;
+import xyz.milnner.automata.StateAutomata;
+import xyz.milnner.automata.Trasition;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.TreeSet;
 public class ReadAutomata {
     private String[] stateAutomatasNames;
     private String[] endStateAutomatasNames;
-    private String beginStateAutomata;
+    private String[] beginStateAutomataNames;
 
     private Alphabet alphabet;
     private Map<String, List<String[]>> mapTrasitions;
@@ -95,8 +95,9 @@ public class ReadAutomata {
      * @throws IOException
      */
     private void readBeginState() throws IOException {
-        this.beginStateAutomata = this.reader.readLine()
-                .substring(1);
+        this.beginStateAutomataNames = this.reader.readLine()
+                .substring(1).split(",");
+        Arrays.sort(this.beginStateAutomataNames);
     }
 
     /**
@@ -114,16 +115,23 @@ public class ReadAutomata {
      * @return um objeto <b>Automata</b>
      */
     public Automata createAutomata() {
-        if (!readed) return null; // a leitura não foi realizada, ou teve uma exceção
+        if (    !readed
+                && this.stateAutomatasNames.length == 0
+        ) return null; // a leitura não foi realizada, ou teve uma exceção
+        StateAutomata stateAutomata;
+
         List<StateAutomata> stateAutomatas = new ArrayList<>(this.stateAutomatasNames.length);
+        List<StateAutomata> beginStateAutomatas = new ArrayList<>(this.beginStateAutomataNames.length);
+        List<StateAutomata> endStateAutomatas = new ArrayList<>(this.endStateAutomatasNames.length);
+        boolean isBegin;
+        boolean isFinal;
         for (String s : this.stateAutomatasNames) {
-            stateAutomatas.add(
-                    new StateAutomata(
-                            s.equals(this.beginStateAutomata),
-                            Integer.parseInt(s.substring(1)),
-                            0 <= (Arrays.binarySearch(this.endStateAutomatasNames, s))
-                    )
-            );
+            isBegin = 0 <= (Arrays.binarySearch(this.beginStateAutomataNames, s));
+            isFinal = 0 <= (Arrays.binarySearch(this.endStateAutomatasNames, s));
+            stateAutomata = new StateAutomata(isBegin, Integer.parseInt(s.substring(1)),isFinal);
+            stateAutomatas.add(stateAutomata);
+            if (isBegin) beginStateAutomatas.add(stateAutomata);
+            if (isFinal) endStateAutomatas.add(stateAutomata);
         }
 
         SortedSet<String> keys = new TreeSet<>( this.mapTrasitions.keySet());
@@ -146,7 +154,7 @@ public class ReadAutomata {
             }
             stateAutomatas.get(stateAutomataFromPosition).setTransitions(transitions);
         }
-        return new Automata(this.alphabet, stateAutomatas);
+        return new Automata(this.alphabet, stateAutomatas, beginStateAutomatas, endStateAutomatas);
     }
 
     /**

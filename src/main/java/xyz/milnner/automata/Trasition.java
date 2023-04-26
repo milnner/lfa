@@ -1,11 +1,12 @@
-package automata;
+package xyz.milnner.automata;
 
 /**
  * Abstrai uma transição dum estado dum automato.
  * @author milnner
  */
+// corrigir depois e voltar StateAutomata para final, tem q melhorar o algoritmo para unir os estados de equivalência
 public class Trasition {
-    private final StateAutomata stateAutomata;
+    private StateAutomata stateAutomata;
     private final String symbol;
 
     /**
@@ -36,4 +37,15 @@ public class Trasition {
      * @return retorna uma cópia do símbolo
      */
     public String getSymbol() {return this.symbol;}
+    public boolean equals (Object o)
+    {
+        return (this.symbol.equals(((Trasition)o).symbol) &&
+                this.stateAutomata.equals(((Trasition)o).stateAutomata));
+
+
+    }
+    public void setStateAutomata(StateAutomata s) {
+        this.stateAutomata = s;
+    }
+
 }

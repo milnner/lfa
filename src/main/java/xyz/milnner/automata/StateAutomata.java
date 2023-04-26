@@ -1,4 +1,4 @@
-package automata;
+package xyz.milnner.automata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +51,12 @@ public class StateAutomata implements Comparable {
         StringBuilder s = new StringBuilder("StateAutomata{name=q"
                 + this.nameIntegerPart
                 + ", begin="+ (this.begin?"true": "false" )
-                + ", end="+ (this.end?"true":"false")
-                + ", List<Transition>");
-        for (Trasition t : transitions) {
-            s.append(", ").append(t.toString());
+                + ", end="+ (this.end?"true":"false"));
+        if (transitions != null) {
+            s.append(" List<Transition>");
+            for (Trasition t : transitions) {
+                s.append("\n ").append(t.toString());
+            }
         }
         return s + "}";
     }
@@ -76,6 +78,11 @@ public class StateAutomata implements Comparable {
     public void setTransitions(List<Trasition> transitions) {
         this.transitions = transitions;
     }
+
+    public List<Trasition> getTransitions() {
+        return transitions;
+    }
+
     /**
      * @return uma cópia das transições.
      * @deprecated usado soomente para testes.
@@ -138,5 +145,20 @@ public class StateAutomata implements Comparable {
         }
         return -middle-1;
     }
+    public int containTransition (String s) {
+        // Depois implementar um algoritmo mais eficiente
+        int count = 0;
+        if (transitions != null) {
+            for (Trasition t : transitions) {
+                if (s.equals(t.getSymbol())) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+
 }
+
 
